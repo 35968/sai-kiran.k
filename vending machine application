@@ -1,0 +1,45 @@
+#include <stdio.h>
+int main() {
+    int choice;
+    float amountInserted;
+    float price;
+    float change;
+
+    printf("Welcome to the Vending Machine!\n");
+    printf("Select an item:\n");
+    printf("1. waffers -₹16\n");
+    printf("2. Chips -  ₹19\n");
+    printf("3. Candy -  ₹16\n");
+    printf("Enter your choice (1-3): ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+        case 1:
+            price = 16;
+            break;
+        case 2:
+            price = 19;
+            break;
+        case 3:
+            price = 16;
+            break;
+        default:
+            printf("Invalid selection.\n");
+            return 1;
+    }
+
+    printf("Please insert  ₹%.2f: ", price);
+    scanf("%f", &amountInserted);
+
+    if (amountInserted < price) {
+        printf("Insufficient amount. Please try again.\n");
+    } else {
+        change = amountInserted - price;
+        printf("Thank you for your purchase!\n");
+        if (change > 0) {
+            printf("Your change is:  ₹%.2f\n", change);
+        }
+    }
+
+    return 0;
+}
