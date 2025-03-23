@@ -1,0 +1,350 @@
+skyscrapers ::::::>>>>>>>>
+
+#include<bits/stdc++.h>
+using namespace std;
+vector<int> solve (int N, int K, int Q, vector<int> A, vector<int> Queries) {
+    set<int> occupied;
+    map<int, int> segments;
+    vector<int> longestsegment(N);
+    
+    occupied.insert(0);
+    occupied.insert(K);
+    segments[K]= 1;
+
+    int maxLen= K;
+
+    for (int i = 0; i < N; i++) {
+        int pos = A[i];
+        auto it = occupied.lower_bound(pos);
+        int right = *it;
+        --it;
+        int left = *it;
+
+        int oldsegment = right - left;
+        segments[oldsegment]--;
+
+        if (segments[oldsegment] ==0) {
+            segments.erase(oldsegment);
+        }
+
+        int newLeftsegment = pos - left;
+        int newRightsegment = right - pos;
+
+        segments[newLeftsegment]++;
+        segments[newRightsegment]++;
+
+        maxLen = prev(segments.end())->first;
+        longestsegment[i] = maxLen;
+        occupied.insert(pos);
+    } 
+
+    vector<int> result;
+    for (int q : Queries) {
+        result.push_back(longestsegment[q - 1]);
+    }
+
+    return result;
+}
+
+int main() {
+
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    vector<string> custom_input_1(3);
+    for(int i_custom_input_1 = 0; i_custom_input_1 < 3; i_custom_input_1++)
+    {
+    	cin >> custom_input_1[i_custom_input_1];
+    }
+    int N = stoi(custom_input_1[0]);
+    int K = stoi(custom_input_1[1]);
+    int Q = stoi(custom_input_1[2]);
+    vector<int> A(N);
+    for(int i_A = 0; i_A < N; i_A++)
+    {
+    	cin >> A[i_A];
+    }
+    vector<int> Queries(Q);
+    for(int i_Queries = 0; i_Queries < Q; i_Queries++)
+    {
+    	cin >> Queries[i_Queries];
+    }
+
+    vector<int> out_;
+    out_ = solve(N, K, Q, A, Queries);
+    cout << out_[0];
+    for(int i_out_ = 1; i_out_ < out_.size(); i_out_++)
+    {
+    	cout << " " << out_[i_out_];
+    }
+}
+
+
+
+
+
+
+Math challenge ::::::>>>>>>>>
+
+#include<bits/stdc++.h>
+using namespace std;
+long long solve (int n, vector<int> a) {
+    long long sum = 0;
+    int min_abs = INT_MAX;
+    bool has_positive = false, has_negative = false;
+
+    for (int num : a) {
+        sum += abs(num);
+        min_abs = min(min_abs, abs(num));
+
+        if(num > 0) has_positive = true;
+        if (num < 0) has_negative = true;
+    }
+
+    if(has_positive && has_negative) {
+        return sum;
+    }
+
+    return sum - 2 * min_abs;
+}
+
+int main() {
+
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    vector<int> a(n);
+    for(int i_a = 0; i_a < n; i_a++)
+    {
+    	cin >> a[i_a];
+    }
+
+    long long out_;
+    out_ = solve(n, a);
+    cout << out_;
+}
+
+
+
+
+
+Health potions ::::::>>>>>>>
+
+#include<bits/stdc++.h>
+using namespace std;
+int solve (int N, vector<int> Potions) {
+    if (N == 0) return 0;
+    vector<int> prefixSum(N + 1, 0);
+    for (int i = N - 1; i >= 0; --i) {
+        prefixSum[i] = Potions[i] + prefixSum[i + 1];
+    }
+    vector<int> dp(N + 2, 0);
+
+    for (int i = N-1; i >= 0; --i) {
+        int option1 = Potions[i] + (prefixSum[i + 1] -dp[i + 1]);
+        int option2 = (i+1<N) ? (Potions[i] + Potions[i+1] + (prefixSum[i+2] - dp[i+2])) :
+INT_MIN;
+
+        dp[i] = max(option1, option2);
+    }
+
+    return dp[0];
+}
+
+int main() {
+
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int N;
+    cin >> N;
+    vector<int> Potions(N);
+    for(int i_Potions = 0; i_Potions < N; i_Potions++)
+    {
+    	cin >> Potions[i_Potions];
+    }
+
+    int out_;
+    out_ = solve(N, Potions);
+    cout << out_;
+}
+
+
+
+
+
+Ronin::::::>>>>>>>
+
+#include<bits/stdc++.h>
+using namespace std;
+
+const int MAXN = 100005;
+
+vector<vector<pair<int, int>>> adj;
+vector<int> parent, edgepower;
+
+    void dfs(int root) {
+        stack<pair<int, pair<int, int>>> st;
+        st.push({root, {0, 0}});
+
+        while(!st.empty()) {
+            auto [node, parData] = st.top();
+            st.pop();
+            int par = parData.first;
+            int power = parData.second;
+
+            parent[node] = par;
+            edgepower[node] = power;
+
+            for (auto &[child, p] : adj[node]) {
+                if (child == par) continue;
+                st.push({child, {node, p}});
+            }
+        }
+    }  
+ 
+ vector<int> solve(int n, vector<vector<int>> &edges, int q, vector<vector<long long>> &queries) {
+    adj.clear();
+    adj.resize(n+1);
+    parent.assign(n+1, 0);
+    edgepower.assign(n+1, 0);
+
+    for (int i=0; i<n-1; i++) {
+        int u = edges[i][0], v = edges[i][1], p = edges[i][2];
+        adj[u].emplace_back(v, p);
+        adj[v].emplace_back(u, p);
+    }
+
+    dfs(1);
+
+    vector<int> result;
+    for (int i=0; i<q; i++) {
+        int u = queries[i][0];
+        long long H = queries[i][1];
+
+        int currentNode = u;
+        int highestNode = u;
+
+        while (currentNode != 1) {
+            int p = edgepower[currentNode];
+            if (H < p) break;
+            H -= p;
+            highestNode = parent[currentNode];
+            currentNode = parent[currentNode];
+        }
+
+        result.push_back(highestNode);
+    }
+
+    return result;   
+}
+
+int main() {
+
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    vector<vector<int> > edges(n-1, vector<int>(3));
+    for(int i_edges = 0; i_edges < n-1; i_edges++)
+    {
+    	for(int j_edges = 0; j_edges < 3; j_edges++)
+    	{
+    		cin >> edges[i_edges][j_edges];
+    	}
+    }
+    int q;
+    cin >> q;
+    vector<vector<long long> > queries(q, vector<long long>(2));
+    for(int i_queries = 0; i_queries < q; i_queries++)
+    {
+    	for(int j_queries = 0; j_queries < 2; j_queries++)
+    	{
+    		cin >> queries[i_queries][j_queries];
+    	}
+    }
+
+    vector<int> out_;
+    out_ = solve(n, edges, q, queries);
+    cout << out_[0];
+    for(int i_out_ = 1; i_out_ < out_.size(); i_out_++)
+    {
+    	cout << " " << out_[i_out_];
+    }
+}
+
+
+
+
+
+Alice in Foodland
+
+#include<bits/stdc++.h>
+using namespace std;
+typedef long long ll;
+class FenwickTree {
+    vector<ll> bit;
+    int size;
+public:
+    FenwickTree(int n) {
+        size = n;
+        bit.assign(n + 1, 0);
+    }
+
+    void update(int idx, ll val) {
+        while (idx <= size) {
+            bit[idx] = max(bit[idx], val);
+            idx += idx & -idx;
+        }
+    }
+
+    ll query(int idx) {
+        ll max_val = 0;
+        while (idx > 0) {
+            max_val = max(max_val, bit[idx]);
+            idx -= idx & -idx;
+        }
+        return max_val;
+    }
+};
+
+ll solve(int n, vector<int> nums) {
+    vector<int> sorted_nums = nums;
+    sort(sorted_nums.begin(), sorted_nums.end());
+    sorted_nums.erase(unique(sorted_nums.begin(), sorted_nums.end()), sorted_nums.end());
+
+    unordered_map<int, int> compress;
+    for (int i = 0; i < sorted_nums.size(); i++) {
+        compress[sorted_nums[i]] = i + 1;  
+    }
+
+    FenwickTree bit(sorted_nums.size());
+    ll max_sum = 0;
+
+    for (int num : nums) {
+        int idx = compress[num];
+        ll best_prev = bit.query(idx - 1);
+        ll curr_sum = best_prev + num;
+        bit.update(idx, curr_sum);
+        max_sum = max(max_sum, curr_sum);
+    }
+
+    return max_sum;
+    
+}
+
+int main() {
+
+    ios::sync_with_stdio(0);
+    cin.tie(0);
+    int n;
+    cin >> n;
+    vector<int> nums(n);
+    for(int i_nums = 0; i_nums < n; i_nums++)
+    {
+    	cin >> nums[i_nums];
+    }
+
+    long long out_;
+    out_ = solve(n, nums);
+    cout << out_;
+}
